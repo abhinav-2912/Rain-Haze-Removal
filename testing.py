@@ -7,34 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-import training as Network
-
-
-def guided_filter(data, height,width):
-    r = 15
-    eps = 1.0
-    batch_size = 1
-    channel = 3
-    batch_q = np.zeros((batch_size, height, width, channel))
-    for i in range(batch_size):
-        for j in range(channel):
-            I = data[i, :, :,j] 
-            p = data[i, :, :,j] 
-            ones_array = np.ones([height, width])
-            N = cv2.boxFilter(ones_array, -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0)
-            mean_I = cv2.boxFilter(I, -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0) / N
-            mean_p = cv2.boxFilter(p, -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0) / N
-            mean_Ip = cv2.boxFilter(I * p, -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0) / N
-            cov_Ip = mean_Ip - mean_I * mean_p
-            mean_II = cv2.boxFilter(I * I, -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0) / N
-            var_I = mean_II - mean_I * mean_I
-            a = cov_Ip / (var_I + eps) 
-            b = mean_p - a * mean_I
-            mean_a = cv2.boxFilter(a , -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0) / N
-            mean_b = cv2.boxFilter(b , -1, (2 * r + 1, 2 * r + 1), normalize = False, borderType = 0) / N
-            q = mean_a * I + mean_b 
-            batch_q[i, :, :,j] = q 
-    return batch_q
+from models import ResidualModel2 as Network
+from utils import guided_filter
 
 tf.reset_default_graph()
 
